@@ -33,8 +33,10 @@
 #include "pwm.h"
 #include "registers.h"
 
+#if 0
 #if !defined(__AVR_ATmega168__)
 #  error "This module is not being compiled for the AVR ATmega168 MCU."
+#endif
 #endif
 
 //
