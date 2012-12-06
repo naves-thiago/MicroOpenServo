@@ -1,11 +1,11 @@
 ###############################################################################
-# Makefile for the project ATTiny44A_OpenServo
+# Makefile for the project ATmega168_OpenServo
 ###############################################################################
 
 ## General Flags
-PROJECT = ATTiny44A_OpenServo
-MCU = attiny44a
-TARGET = ATTiny44A_OpenServo.elf
+PROJECT = ATmega168_OpenServo
+MCU = atmega168
+TARGET = ATmega168_OpenServo.elf
 CC = avr-gcc
 
 ## Options common to compile, link and assembly rules
@@ -22,17 +22,17 @@ ASMFLAGS += -x assembler-with-cpp -Wa,-gdwarf2
 
 ## Linker flags
 LDFLAGS = $(COMMON)
-LDFLAGS += -nostartfiles -v  -Wl,-Map=ATTiny44A_OpenServo.map
+LDFLAGS += -nostartfiles -v  -Wl,-Map=ATmega168_OpenServo.map
 
 
 ## Objects that must be built in order to link
-OBJECTS = bootcrt.o main.o adc.o registers.o eeprom.o watchdog.o motion.o math.o ipd.o pid.o regulator.o power.o twi.o pwm.o estimator.o timer.o 
+OBJECTS = bootcrt.o main.o adc.o registers.o eeprom.o watchdog.o motion.o math.o ipd.o pid.o regulator.o power.o twi.o pwm.o estimator.o seek.o timer.o curve.o pulsectl.o
 
 ## Objects explicitly added by the user
 LINKONLYOBJECTS =
 
 ## Build
-all: $(TARGET) ATTiny44A_OpenServo.hex ATTiny44A_OpenServo.lss size
+all: $(TARGET) ATmega168_OpenServo.hex ATmega168_OpenServo.lss size
 
 ## Compile
 bootcrt.o: bootcrt.s
@@ -109,7 +109,7 @@ size: ${TARGET}
 ## Clean target
 .PHONY: clean
 clean:
-	-rm -rf $(OBJECTS) ATTiny44A_OpenServo.elf dep/* ATTiny44A_OpenServo.hex ATTiny44A_OpenServo.lss ATTiny44A_OpenServo.map
+	-rm -rf $(OBJECTS) ATmega168_OpenServo.elf dep/* ATmega168_OpenServo.hex ATmega168_OpenServo.lss ATmega168_OpenServo.map
 
 
 ## Other dependencies
