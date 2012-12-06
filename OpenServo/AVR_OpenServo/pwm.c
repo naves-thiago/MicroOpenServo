@@ -134,7 +134,8 @@ static void pwm_dir_a(uint8_t pwm_duty)
 }
 
 
-static void pwm_dir_b(uint8_t pwm_duty)
+//static void pwm_dir_b(uint8_t pwm_duty)
+void pwm_dir_b(uint8_t pwm_duty)
 // Send PWM signal for rotation with the indicated pwm ratio (0 - 255).
 // This function is meant to be called only by pwm_update.
 {
@@ -148,14 +149,15 @@ static void pwm_dir_b(uint8_t pwm_duty)
     if (!pwm_b || pwm_a)
     {
 
-        // Disable PWM_A (PB1/OC1A) and PWM_B (PB2/OC1B) output.
+        // Disable PWM_A (PA7/OC0B) and PWM_B (PB2/OC0A) output.
         // NOTE: Actually PWM_B should already be disabled...
-       TCCR1A &= ~((1<<COM1A1) | (1<<COM1B1));
+       TCCR0A &= ~((1<<COM1A1) | (1<<COM1B1));
 
-       OCR1B = duty_cycle;
+       OCR0B = duty_cycle;
 
-       // Yes. Make sure PB1 and PB2 are zero.
-        PORTB &= ~((1<<PB1) | (1<<PB2));
+       // Set PB2/OC0A and PA7/OC0B to low.
+       PORTB &= ~(1<<PB2);
+       PORTA &= ~(1<<PA7);
 
         //
         // Give the H-bridge time to respond to the above changes
@@ -163,7 +165,7 @@ static void pwm_dir_b(uint8_t pwm_duty)
         delay_loop(DELAYLOOP);
 
         // Enable PWM_B (PB2/OC1B) output.
-        TCCR1A = (1<<COM1B1);
+        TCCR0A = (1<<COM1B1);
 
         // Reset the A direction flag.
         pwm_a = 0;
@@ -173,8 +175,8 @@ static void pwm_dir_b(uint8_t pwm_duty)
     pwm_b = pwm_duty;
 
     // Update the PWM duty cycle.
-    OCR1A = 0;
-    OCR1B = duty_cycle;
+    OCR0A = 0;
+    OCR0B = duty_cycle;
 
     // Restore interrupts.
     sei();
@@ -205,36 +207,38 @@ void pwm_init(void)
     // Initialize the pwm frequency divider value.
     pwm_div = registers_read_word(REG_PWM_FREQ_DIVIDER_HI, REG_PWM_FREQ_DIVIDER_LO);
 
-    TCCR1A = 0;
+    TCCR0A = 0;
         asm("nop");
         asm("nop");
         asm("nop");
 
-    // Set PB1/OC1A and PB2/OC1B to low.
-    PORTB &= ~((1<<PB1) | (1<<PB2));
+    // Set PB2/OC0A and PA7/OC0B to low.
+    PORTB &= ~(1<<PB2);
+    PORTA &= ~(1<<PA7);
 
-    // Enable PB1/OC1A and PB2/OC1B as outputs.
-    DDRB |= ((1<<DDB1) | (1<<DDB2));
+    // Enable PB2/OC0A and PA7/OC0B as outputs.
+    DDRB |= (1<<DDB2);
+    DDRA |= (1<<DDA7);
 
-    // Reset the timer1 configuration.
-    TCNT1 = 0;
-    TCCR1A = 0;
-    TCCR1B = 0;
-    TCCR1C = 0;
-    TIMSK1 = 0;
+    // Reset the timer0 configuration.
+    TCNT0 = 0;
+    TCCR0A = 0;
+    TCCR0B = 0;
+    TIMSK0 = 0;
 
     // Set timer top value.
-    ICR1 = PWM_TOP_VALUE(pwm_div);
+    //TOV0 = PWM_TOP_VALUE(pwm_div);
+    //ICR0 = PWM_TOP_VALUE(pwm_div);
 
     // Set the PWM duty cycle to zero.
-    OCR1A = 0;
-    OCR1B = 0;
+    OCR0A = 0;
+    OCR0B = 0;
 
     // Configure timer 1 for PWM, Phase and Frequency Correct operation, but leave outputs disabled.
-    TCCR1A = (0<<COM1A1) | (0<<COM1A0) |                    // Disable OC1A output.
+    TCCR0A = (0<<COM1A1) | (0<<COM1A0) |                    // Disable OC1A output.
              (0<<COM1B1) | (0<<COM1B0) |                    // Disable OC1B output.
              (0<<WGM11) | (0<<WGM10);                       // PWM, Phase and Frequency Correct, TOP = ICR1
-    TCCR1B = (0<<ICNC1) | (0<<ICES1) |                      // Input on ICP1 disabled.
+    TCCR0B = (0<<ICNC1) | (0<<ICES1) |                      // Input on ICP1 disabled.
              (1<<WGM13) | (0<<WGM12) |                      // PWM, Phase and Frequency Correct, TOP = ICR1
              (0<<CS12) | (0<<CS11) | (1<<CS10);             // No prescaling.
 
@@ -263,12 +267,13 @@ void pwm_update(uint16_t position, int16_t pwm)
     // top to a value lower than the counter and compare values.
     if (registers_read_word(REG_PWM_FREQ_DIVIDER_HI, REG_PWM_FREQ_DIVIDER_LO) != pwm_div)
     {
-        // Disable OC1A and OC1B outputs.
-        TCCR1A &= ~((1<<COM1A1) | (1<<COM1A0));
-        TCCR1A &= ~((1<<COM1B1) | (1<<COM1B0));
+        // Disable OC0A and OC0B outputs.
+        TCCR0A &= ~((1<<COM1A1) | (1<<COM1A0));
+        TCCR0A &= ~((1<<COM1B1) | (1<<COM1B0));
 
-        // Clear PB1 and PB2.
-        PORTB &= ~((1<<PB1) | (1<<PB2));
+        // Set PB2/OC0A and PA7/OC0B to low.
+        PORTB &= ~(1<<PB2);
+        PORTA &= ~(1<<PA7);
 
         delay_loop(DELAYLOOP);
 
@@ -280,12 +285,12 @@ void pwm_update(uint16_t position, int16_t pwm)
         pwm_div = registers_read_word(REG_PWM_FREQ_DIVIDER_HI, REG_PWM_FREQ_DIVIDER_LO);
 
         // Update the timer top value.
-        ICR1 = PWM_TOP_VALUE(pwm_div);
+        //ICR1 = PWM_TOP_VALUE(pwm_div);
 
         // Reset the counter and compare values to prevent problems with the new top value.
-        TCNT1 = 0;
-        OCR1A = 0;
-        OCR1B = 0;
+        TCNT0 = 0;
+        OCR0A = 0;
+        OCR0B = 0;
     }
 
     // Are we reversing the seek sense?
@@ -375,11 +380,12 @@ void pwm_stop(void)
     if (pwm_a || pwm_b)
     {
         // Disable OC1A and OC1B outputs.
-        TCCR1A &= ~((1<<COM1A1) | (1<<COM1A0));
-        TCCR1A &= ~((1<<COM1B1) | (1<<COM1B0));
+        TCCR0A &= ~((1<<COM1A1) | (1<<COM1A0));
+        TCCR0A &= ~((1<<COM1B1) | (1<<COM1B0));
 
-        // Clear PB1 and PB2.
-        PORTB &= ~((1<<PB1) | (1<<PB2));
+        // Set PB2/OC0A and PA7/OC0B to low.
+        PORTB &= ~(1<<PB2);
+        PORTA &= ~(1<<PA7);
 
         delay_loop(DELAYLOOP);
 
@@ -389,8 +395,8 @@ void pwm_stop(void)
     }
 
     // Set the PWM duty cycle to zero.
-    OCR1A = 0;
-    OCR1B = 0;
+    OCR0A = 0;
+    OCR0B = 0;
 
     // Restore interrupts.
     sei();

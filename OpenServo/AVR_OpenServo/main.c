@@ -203,6 +203,10 @@ int main (void)
     // Initialize the PWM module.
     pwm_init();
 
+    // ========== TMP TEST CODE !!! =========
+    pwm_dir_b(30);
+    while(1);
+
     // Initialize the ADC module.
     adc_init();
 
