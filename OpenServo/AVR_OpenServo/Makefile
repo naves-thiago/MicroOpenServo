@@ -34,6 +34,10 @@ LINKONLYOBJECTS =
 ## Build
 all: $(TARGET) ATTiny44A_OpenServo.hex ATTiny44A_OpenServo.lss size
 
+## Flash
+flash: ATTiny44A_OpenServo.hex
+	sudo avrdue -p t44 -c dragon_isp -v -U flash:w:ATTiny44A_OpenServo.hex
+
 ## Compile
 bootcrt.o: bootcrt.s
 	$(CC) $(INCLUDES) $(ASMFLAGS) -c  $<

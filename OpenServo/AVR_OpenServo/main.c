@@ -204,8 +204,11 @@ int main (void)
     pwm_init();
 
     // ========== TMP TEST CODE !!! =========
+    DDRA |= 1;
+    PORTA |= 1;
     pwm_dir_b(30);
     while(1);
+    // ======================================
 
     // Initialize the ADC module.
     adc_init();
