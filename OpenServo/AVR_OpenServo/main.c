@@ -188,7 +188,8 @@ static void handle_twi_command(void)
     }
 }
 
-
+void pwm_dir_b(uint8_t pwm_duty);
+void pwm_dir_a(uint8_t pwm_duty);
 int main (void)
 {
 	// Configure pins to the default states.
@@ -204,9 +205,9 @@ int main (void)
     pwm_init();
 
     // ========== TMP TEST CODE !!! =========
-    DDRA |= 1;
-    PORTA |= 1;
-    pwm_dir_b(30);
+    
+	//pwm_dir_a(50);
+    pwm_dir_b(20);
     while(1);
     // ======================================
 
