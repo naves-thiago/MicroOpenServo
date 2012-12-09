@@ -207,8 +207,8 @@ int main (void)
     // ========== TMP TEST CODE !!! =========
     
 	//pwm_dir_a(50);
-    pwm_dir_b(20);
-    while(1);
+    //pwm_dir_b(20);
+    //while(1);
     // ======================================
 
     // Initialize the ADC module.
@@ -282,6 +282,12 @@ int main (void)
         {
             int16_t pwm;
             int16_t position;
+			
+			// ==== TEST CODE ====
+			pwm_dir_a(adc_position_value_is_ready() & 0xFF);
+			continue;
+			// ===================
+
 
 #if PULSE_CONTROL_ENABLED
             // Give pulse control a chance to update the seek position.
@@ -321,6 +327,7 @@ int main (void)
             pwm_update(position, pwm);
         }
 
+		/*
         // Is a power value ready?
         if (adc_power_value_is_ready())
         {
@@ -337,7 +344,8 @@ int main (void)
             // Handle any TWI command.
             handle_twi_command();
         }
-
+		*/
+		
 #if MAIN_MOTION_TEST_ENABLED
         // This code is in place for having the servo drive itself between 
         // two positions to aid in the servo tuning process.  This code 

@@ -117,6 +117,29 @@ void adc_init(void)
     // Initialize ADC registers to yield a 125KHz clock.
     //
 
+#if defined(__AVR_ATtiny44A__)
+	PORTA &= ~(1<<PA3);
+	
+	// Disable digital input for ADC3 to reduce power consumption.
+	DIDR0 |= (1<<ADC3D);
+	
+	// Set the ADC multiplexer selection register
+	ADMUX = (0<<REFS1) | (0<<REFS0) |						  // Select VCC as voltage reference.
+			 (0<<MUX3) | (0<<MUX2) | (1<<MUX1) | (1<<MUX0) |  // Select ADC3 (PB3), no gain.
+			(0<<ADLAR);                                       // Keep high bits right adjusted.
+
+	// Set the ADC control and status register B.
+	ADCSRB = (0<<BIN) |                             // Gain working in unipolar mode.
+		   (1<<ADTS2) | (0<<ADTS1) | (1<<ADTS0);    // Timer/Counter1 Compare Match B.
+
+	// Set the ADC control and status register A.
+	ADCSRA = (1<<ADEN) |                            // Enable ADC.
+			 (0<<ADSC) |                            // Don's start yet, will be auto triggered.
+			(1<<ADATE) |                            // Start auto triggering.
+			 (1<<ADIE) |                            // Activate ADC conversion complete interrupt.
+			 ADPS;									// Prescale -- see above.
+#endif // __AVR_ATtiny44A__
+	
 #if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
     // Make sure port PB4 (ADC3) and PB5 (ADC0) are set as input.
     PORTB &= ~((1<<PB4) | (1<<PB5));
@@ -187,6 +210,29 @@ void adc_init(void)
              ADPS;											// Prescale -- see above.
 #endif // __AVR_ATmega88__ || __AVR_ATmega168__
 
+#if defined(__AVR_ATtiny44A__)
+	// Set timer/counter1 control register A.
+	TCCR1A = (0<<COM1A1) | (0<<COM1A0) |                    // Disconnect OCOA.
+			 (0<<COM1B1) | (0<<COM1B0) |                    // Disconnect OCOB.
+			  (0<<WGM10) | (0<<WGM11);	                    // Mode 4 - clear timer on compare match (OCR1A).
+
+	// Set timer/counter1 control register B.
+	TCCR1B = (0<<FOC0A) | (0<<FOC0B) |                      // No force output compare A or B.
+			 (1<<WGM12)	| (0<<WGM13) |		                // Mode 4 - clear timer on compare match.
+			 CSPS;											// Timer clock prescale -- see above.
+
+	// Set the timer/counter1 interrupt masks.
+	TIMSK1 = (1<<OCIE1A) |                                  // Interrupt on compare match A.
+			 (0<<OCIE1B) |                                  // No interrupt on compare match B.
+			 (0<<TOIE1);                                    // No interrupt on overflow.
+
+	// Set the compare match A and B value which initiates an ADC sample.
+	OCR1A = CRVALUE;
+	OCR1B = CRVALUE;
+	
+	//sei();
+#endif // __AVR_ATtiny44A__
+
 #if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
     // Set timer/counter0 control register A.
     TCCR0A = (0<<COM0A1) | (0<<COM0A0) |                    // Disconnect OCOA.
@@ -239,6 +285,17 @@ void adc_init(void)
 #endif // __AVR_ATmega88__ || __AVR_ATmega168__
 }
 
+#if defined(__AVR_ATtiny44A__)
+
+//SIGNAL(SIG_OUTPUT_COMPARE1A)
+ISR(TIM1_COMPA_vect)
+// Handles timer/counter1 compare match A.
+{
+	// Increment the timer when positions are being sampled.
+	if (adc_channel == ADC_CHANNEL_POSITION) timer_increment();
+}
+
+#endif // __AVR_ATtiny44A__
 
 #if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__) || defined(__AVR_ATmega88__) || defined(__AVR_ATmega168__)
 
@@ -275,11 +332,20 @@ SIGNAL(SIG_OVERFLOW0)
 
 #endif // __AVR_ATmega8__
 
-SIGNAL(SIG_ADC)
+ISR(ADC_vect)
 // Handles ADC interrupt.
 {
     // Read the 10-bit ADC value.
     uint16_t new_value = ADCW;
+
+	// The tiny44a version only have position connected to ADC
+#if defined(__AVR_ATtiny44A__)
+	// Save the new position value.
+	adc_position_value = new_value;
+
+	// Flag the position value as ready.
+	adc_position_ready = 1;
+#endif
 
     // Which channel is being read?
     switch (adc_channel)
