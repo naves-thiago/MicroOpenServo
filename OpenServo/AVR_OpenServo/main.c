@@ -283,11 +283,12 @@ int main (void)
             int16_t pwm;
             int16_t position;
 			
+			/*
 			// ==== TEST CODE ====
 			pwm_dir_a(adc_get_position_value() & 0xFF);
 			continue;
 			// ===================
-
+			*/
 
 #if PULSE_CONTROL_ENABLED
             // Give pulse control a chance to update the seek position.

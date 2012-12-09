@@ -131,11 +131,12 @@
 #define HARDWARE_TYPE_FUTABA_S3003      1
 #define HARDWARE_TYPE_HITEC_HS_311      2
 #define HARDWARE_TYPE_HITEC_HS_475HB    3
+#define HARDWARE_TYPE_HEXTRONIK_HXT900  4
 
 // By default the hardware type is unknown.  This value should be 
 // changed to reflect the hardware type that the code is actually 
 // being compiled for.
-#define HARDWARE_TYPE                   HARDWARE_TYPE_UNKNOWN
+#define HARDWARE_TYPE                   HARDWARE_TYPE_HEXTRONIK_HXT900
 
 // Set configuration values based on HARDWARE_TYPE.
 #if (HARDWARE_TYPE == HARDWARE_TYPE_UNKNOWN)
@@ -200,6 +201,21 @@
 #define DEFAULT_MAX_SEEK                0x03A0
 
 // Hitec HS-475HB hardware default pwm frequency divider.
+#define DEFAULT_PWM_FREQ_DIVIDER        0x0008
+
+#elif (HARDWARE_TYPE == HARDWARE_TYPE_HEXTRONIK_HXT900)
+
+// Hextronik HXT900 hardware default PID gains.
+#define DEFAULT_PID_PGAIN               0x0600
+#define DEFAULT_PID_DGAIN               0x1800
+#define DEFAULT_PID_IGAIN               0x0000
+#define DEFAULT_PID_DEADBAND            0x01
+
+// Hextronik HXT900 hardware default mininimum and maximum seek positions.
+#define DEFAULT_MIN_SEEK                0x0060
+#define DEFAULT_MAX_SEEK                0x03A0
+
+// Hextronik HXT900 hardware default pwm frequency divider.
 #define DEFAULT_PWM_FREQ_DIVIDER        0x0008
 
 #endif
