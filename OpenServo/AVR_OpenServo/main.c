@@ -276,7 +276,7 @@ int main (void)
     // This is the main processing loop for the servo.  It basically looks
     // for new position, power or TWI commands to be processed.
     for (;;)
-    {
+    {	
         // Is position value ready?
         if (adc_position_value_is_ready())
         {
@@ -284,7 +284,7 @@ int main (void)
             int16_t position;
 			
 			// ==== TEST CODE ====
-			pwm_dir_a(adc_position_value_is_ready() & 0xFF);
+			pwm_dir_a(adc_get_position_value() & 0xFF);
 			continue;
 			// ===================
 

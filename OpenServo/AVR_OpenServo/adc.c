@@ -292,7 +292,7 @@ ISR(TIM1_COMPA_vect)
 // Handles timer/counter1 compare match A.
 {
 	// Increment the timer when positions are being sampled.
-	if (adc_channel == ADC_CHANNEL_POSITION) timer_increment();
+	timer_increment();
 }
 
 #endif // __AVR_ATtiny44A__
@@ -345,6 +345,11 @@ ISR(ADC_vect)
 
 	// Flag the position value as ready.
 	adc_position_ready = 1;
+	
+	// Start the ADC
+	ADCSRA |= (1<<ADSC);
+	
+	return;
 #endif
 
     // Which channel is being read?
