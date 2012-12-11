@@ -204,16 +204,13 @@ int main (void)
     // Initialize the PWM module.
     pwm_init();
 
-    // ========== TMP TEST CODE !!! =========
-    
-	//pwm_dir_a(50);
-    //pwm_dir_b(20);
-    //while(1);
-    // ======================================
-
     // Initialize the ADC module.
     adc_init();
 
+	// TEST CODE
+	pwm_dir_a(128);
+	while(1);
+	
 #if ESTIMATOR_ENABLED
     // Initialize the state estimator module.
     estimator_init();
@@ -283,12 +280,12 @@ int main (void)
             int16_t pwm;
             int16_t position;
 			
-			/*
+			
 			// ==== TEST CODE ====
-			pwm_dir_a(adc_get_position_value() & 0xFF);
-			continue;
+		//	pwm_dir_b(adc_get_position_value() & 0xFF);
+		//	continue;
 			// ===================
-			*/
+			
 
 #if PULSE_CONTROL_ENABLED
             // Give pulse control a chance to update the seek position.

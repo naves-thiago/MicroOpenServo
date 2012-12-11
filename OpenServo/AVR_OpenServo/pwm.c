@@ -95,7 +95,7 @@ void pwm_dir_a(uint8_t pwm_duty)
 
     // Only 1 pwm should be on at any time
     // Disable PWM_B (PA7/OC0B) and high side FET b
-	TCCR0A &= ~(1<<COM0B1);
+	TCCR0A &= ~((1<<COM0B1) | (1<<COM0B0));
 	OCR0B = 0;
 	PORTA |= (1<<PA1);
 	PORTA &= ~(1<<PA7);
@@ -149,7 +149,7 @@ void pwm_dir_b(uint8_t pwm_duty)
 
     // Only 1 pwm should be on at any time
     // Disable PWM_A (PB2/OC0A) and high side FET a
-    TCCR0A &= ~(1<<COM0A1);
+    TCCR0A &= ~((1<<COM0A1) | (1<<COM0A0));
 	PORTA |= (1<<PA2);
     PORTB &= ~(1<<PB2);
     OCR0A = 0;
@@ -234,8 +234,8 @@ void pwm_init(void)
 	//WGM is set to 3 which is fast PWM mode, PWMs start off
 	TCCR0A |= ((1 << WGM01) | (1 << WGM00));
 
-	//This turns the the 8 bit counter 0 on and sets the pre-scaler to 1
-	TCCR0B |= 1 << CS00;
+	//This turns the the 8 bit counter 0 on and sets the pre-scaler to 8
+	TCCR0B |= (1 << CS00);
 	
 	
     // Update the pwm values.
