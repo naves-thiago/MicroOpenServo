@@ -118,14 +118,14 @@ void adc_init(void)
     //
 
 #if defined(__AVR_ATtiny44A__)
-	PORTA &= ~(1<<PA3);
+	PORTA &= ~(1<<PA0);
 	
-	// Disable digital input for ADC3 to reduce power consumption.
-	DIDR0 |= (1<<ADC3D);
+	// Disable digital input for ADC0 to reduce power consumption.
+	DIDR0 |= (1<<ADC0D);
 	
 	// Set the ADC multiplexer selection register
 	ADMUX = (0<<REFS1) | (0<<REFS0) |						  // Select VCC as voltage reference.
-			 (0<<MUX3) | (0<<MUX2) | (1<<MUX1) | (1<<MUX0) |  // Select ADC3 (PB3), no gain.
+			 (0<<MUX3) | (0<<MUX2) | (0<<MUX1) | (0<<MUX0) |  // Select ADC0 (PA0), no gain.
 			(0<<ADLAR);                                       // Keep high bits right adjusted.
 
 	// Set the ADC control and status register B.
@@ -347,7 +347,7 @@ ISR(ADC_vect)
 	adc_position_ready = 1;
 	
 	// Start the ADC
-	ADCSRA |= (1<<ADSC);
+	ADCSRA |= (1<<ADSC);// | (1<<ADIF);
 	
 	return;
 #endif

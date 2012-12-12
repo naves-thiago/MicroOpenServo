@@ -208,8 +208,8 @@ int main (void)
     adc_init();
 
 	// TEST CODE
-	pwm_dir_a(128);
-	while(1);
+	//pwm_dir_a(128);
+	//while(1);
 	
 #if ESTIMATOR_ENABLED
     // Initialize the state estimator module.
@@ -280,10 +280,12 @@ int main (void)
             int16_t pwm;
             int16_t position;
 			
+			//pwm_dir_b(128);
+			
 			
 			// ==== TEST CODE ====
-		//	pwm_dir_b(adc_get_position_value() & 0xFF);
-		//	continue;
+			pwm_dir_b((adc_get_position_value() >> 2)& 0xFF);
+			continue;
 			// ===================
 			
 
