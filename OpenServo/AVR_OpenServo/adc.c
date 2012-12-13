@@ -27,6 +27,7 @@
 #include <inttypes.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/eeprom.h>
 
 #include "openservo.h"
 #include "config.h"
@@ -338,6 +339,14 @@ ISR(ADC_vect)
     // Read the 10-bit ADC value.
     uint16_t new_value = ADCW;
 
+	/* Used to determine the servo limits, writes current position to the addr 0 of eeprom
+	if (eeprom_read_byte((uint8_t*)5) != 5)
+	{
+		eeprom_write_word((uint8_t*)0, new_value);
+		eeprom_write_byte((uint8_t*)5,5);
+	}
+	*/
+	
 	// The tiny44a version only have position connected to ADC
 #if defined(__AVR_ATtiny44A__)
 	// Save the new position value.

@@ -212,8 +212,8 @@
 #define DEFAULT_PID_DEADBAND            0x01
 
 // Hextronik HXT900 hardware default mininimum and maximum seek positions.
-#define DEFAULT_MIN_SEEK                0x0060
-#define DEFAULT_MAX_SEEK                0x03A0
+#define DEFAULT_MIN_SEEK                0x000E
+#define DEFAULT_MAX_SEEK                0x03FF
 
 // Hextronik HXT900 hardware default pwm frequency divider.
 #define DEFAULT_PWM_FREQ_DIVIDER        0x0008
