@@ -67,7 +67,7 @@
 #define TWI_DATA_STATE_CHECKED_DATA         (0x04)
 #endif
 
-// Device dependant defines
+// Device dependent defines
 #if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
 
 // Overflow state values.
@@ -90,7 +90,27 @@
 
 #endif // __AVR_ATtiny45__ || __AVR_ATtiny85____
 
-#if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
+#if defined(__AVR_ATtiny44A__)
+// Overflow state values.
+#define TWI_OVERFLOW_STATE_NONE             (0x00)
+#define TWI_OVERFLOW_STATE_ACK_PR_RX        (0x01)
+#define TWI_OVERFLOW_STATE_DATA_RX          (0x02)
+#define TWI_OVERFLOW_STATE_ACK_PR_TX        (0x03)
+#define TWI_OVERFLOW_STATE_PR_ACK_TX        (0x04)
+#define TWI_OVERFLOW_STATE_DATA_TX          (0x05)
+
+#define DDR_USI                             DDRA
+#define DD_SDA                              DDA6
+#define DD_SCL                              DDA4
+#define PORT_USI                            PORTA
+#define P_SDA                               PA6
+#define P_SCL                               PA4
+#define PIN_USI                             PINA
+#define PIN_SDA                             PINA6
+#define PIN_SCL                             PINA4
+#endif
+
+#if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__) || defined(__AVR_ATtiny44A__)
 static uint8_t twi_slave_address;
 #endif
 
@@ -410,14 +430,14 @@ static uint8_t twi_write_data(uint8_t data)
 
 void
 twi_slave_init(uint8_t slave_address)
-// Initialise USI for TWI slave mode.
+// Initialize USI for TWI slave mode.
 {
     // Flush the buffers.
     twi_rxtail = 0;
     twi_rxhead = 0;
 
-#if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
-    // Set the slave address.
+#if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__) || defined(__AVR_ATtiny44A__)
+	// Set the slave address.
     twi_slave_address = slave_address & 0x7f;
 
     // Set the interrupt enable, wire mode and clock settings.  Note: At this
@@ -443,7 +463,7 @@ twi_slave_init(uint8_t slave_address)
 
     // Start condition interrupt enable.
     USICR |= (1<<USISIE);
-#endif // __AVR_ATtiny45__ || __AVR_ATtiny85____
+#endif // __AVR_ATtiny45__ || __AVR_ATtiny85____ || __AVR_ATtiny44A__
 
 #if defined(__AVR_ATmega8__) || defined(__AVR_ATmega88__) || defined(__AVR_ATmega168__)
     // Set own TWI slave address.
@@ -486,12 +506,14 @@ uint8_t twi_data_in_receive_buffer(void)
 }
 
 
-#if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
+#if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__) || defined(__AVR_ATtiny44A__)
+void pwm_dir_a(uint8_t pwm_duty);
 
 SIGNAL(SIG_USI_START)
 // Handle the TWI start condition.  This is called when the TWI master initiates
 // communication with a TWI slave by asserting the TWI start condition.
 {
+	pwm_dir_a(128);
     // Wait until the "Start Condition" is complete when SCL goes low. If we fail to wait
     // for SCL to go low we may miscount the number of clocks pulses for the data because
     // the transition of SCL could be mistaken as one of the data clock pulses.
@@ -655,7 +677,7 @@ SIGNAL(SIG_USI_OVERFLOW)
     USISR |= (1<<USIOIF);
 }
 
-#endif // __AVR_ATtiny45__ || __AVR_ATtiny85____
+#endif // __AVR_ATtiny45__ || __AVR_ATtiny85__ || __AVR_ATtiny44A__
 
 
 #if defined(__AVR_ATmega8__) || defined(__AVR_ATmega88__) || defined(__AVR_ATmega168__)

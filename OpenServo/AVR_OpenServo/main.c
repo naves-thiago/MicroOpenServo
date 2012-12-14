@@ -244,8 +244,9 @@ int main (void)
 #endif
 
     // Initialize the TWI slave module.
-    twi_slave_init(registers_read_byte(REG_TWI_ADDRESS));
-
+    //twi_slave_init(registers_read_byte(REG_TWI_ADDRESS));
+	twi_slave_init(0x10);
+	
     // Finally initialize the timer.
     timer_set(0);
 
@@ -284,8 +285,8 @@ int main (void)
 			
 			
 			// ==== TEST CODE ====
-			pwm_dir_b((adc_get_position_value() >> 2)& 0xFF);
-			continue;
+			//pwm_dir_b((adc_get_position_value() >> 2)& 0xFF);
+			//continue;
 			// ===================
 			
 
@@ -337,14 +338,14 @@ int main (void)
             // Update the power value for reporting.
             power_update(power);
         }
-
+		*/
+		
         // Was a command recieved?
         if (twi_data_in_receive_buffer())
         {
             // Handle any TWI command.
             handle_twi_command();
         }
-		*/
 		
 #if MAIN_MOTION_TEST_ENABLED
         // This code is in place for having the servo drive itself between 
