@@ -506,10 +506,17 @@ uint8_t twi_data_in_receive_buffer(void)
 }
 
 
+// === TEST CODE === //
 #if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__) || defined(__AVR_ATtiny44A__)
 void pwm_dir_a(uint8_t pwm_duty);
+#endif
 
-SIGNAL(SIG_USI_START)
+#if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
+  SIGNAL(SIG_USI_START)
+#elif defined(__AVR_ATtiny44A__)
+  ISR(USI_STR_vect)
+#endif
+#if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__) || defined(__AVR_ATtiny44A__)
 // Handle the TWI start condition.  This is called when the TWI master initiates
 // communication with a TWI slave by asserting the TWI start condition.
 {
@@ -532,9 +539,15 @@ SIGNAL(SIG_USI_START)
             (1<<USICS1) | (0<<USICS0) | (0<<USICLK) |   // Shift Register Clock Source = External, positive edge
             (0<<USITC);                                 // No toggle of clock pin.
 }
+#endif
 
 
-SIGNAL(SIG_USI_OVERFLOW)
+#if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
+  SIGNAL(SIG_USI_OVERFLOW)
+#elif defined(__AVR_ATtiny44A__)
+  ISR(USI_OVF_vect)
+#endif
+#if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__) || defined(__AVR_ATtiny44A__)
 // Handle the TWI overflow condition.  This is called when the TWI 4-bit counter
 // overflows indicating the TWI master has clocked in/out a databyte or a single
 // ack/nack byte following a databyte transfer.
