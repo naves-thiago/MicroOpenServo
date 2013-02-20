@@ -427,9 +427,62 @@ static uint8_t twi_write_data(uint8_t data)
     return ack;
 }
 
+void twi_slave_init(uint8_t slave_address)
+{
+    // Flush the buffers.
+    twi_rxtail = 0;
+    twi_rxhead = 0;
+
+#if defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__) || defined(__AVR_ATtiny44A__)
+    // Set the slave address.
+    twi_slave_address = slave_address & 0x7f;
+
+    // Set the interrupt enable, wire mode and clock settings.  Note: At this
+    // time the wire mode must not be set to hold the SCL line low when the 
+    // counter overflows. Otherwise, this TWI slave will interfere with other
+    // TWI slaves.
+    USICR = (0<<7) | (0<<6) |                 // Disable start condition and overflow interrupt.
+            (1<<5) | (0<<4) |                 // Set USI to two-wire mode without clock stretching.
+            (1<<3) | (0<<2) | (0<<1) |        // Shift Register Clock Source = External, positive edge
+            (0<<0);                           // No toggle of clock pin.
+
+    // Clear the interrupt flags and reset the counter.
+    USISR = (1<<7) | (1<<6) | (1<<5) |        // Clear interrupt flags.
+            (0x0<<3);                         // USI to sample 8 bits or 16 edge toggles.
+
+    // Configure SDA.
+    DDR_USI &= ~(1<<DD_SDA);
+    PORT_USI &= ~(1<<P_SDA);
+
+    // Configure SCL.
+    DDR_USI |= (1<<DD_SCL);
+    PORT_USI |= (1<<P_SCL);
+
+    // Start condition interrupt enable.
+    USICR |= (1<<7);
+#endif // __AVR_ATtiny45__ || __AVR_ATtiny85____ || __AVR_ATtiny44A__
+
+#if defined(__AVR_ATmega8__) || defined(__AVR_ATmega88__) || defined(__AVR_ATmega168__)
+    // Set own TWI slave address.
+    TWAR = slave_address << 1;
+
+    // Default content = SDA released.
+    TWDR = 0xFF;
+
+    // Initialize the TWI interrupt to wait for a new event.
+    TWCR = (1<<TWEN) |                                  // Keep the TWI interface enabled.
+           (1<<TWIE) |                                  // Keep the TWI interrupt enabled.
+           (0<<TWSTA) |                                 // Don't generate start condition.
+           (0<<TWSTO) |                                 // Don't generate stop condition.
+           (1<<TWINT) |                                 // Clear the TWI interrupt.
+           (1<<TWEA) |                                  // Acknowledge the data.
+           (0<<TWWC);                                   //
+#endif // __AVR_ATmega8__ || __AVR_ATmega88__ || __AVR_ATmega168__
+
+}
 
 void
-twi_slave_init(uint8_t slave_address)
+not_twi_slave_init(uint8_t slave_address)
 // Initialize USI for TWI slave mode.
 {
     // Flush the buffers.
@@ -552,6 +605,8 @@ void pwm_dir_a(uint8_t pwm_duty);
 // overflows indicating the TWI master has clocked in/out a databyte or a single
 // ack/nack byte following a databyte transfer.
 {
+  // TEST CODE
+	pwm_dir_a(20);
     // Buffer the USI data.
     uint8_t usi_data = USIDR;
 

@@ -45,7 +45,6 @@
 #include "twi.h"
 #include "watchdog.h"
 #include "registers.h"
-
 static void config_pin_defaults(void)
 // Configure pins to their default states to conform to recommendation that all 
 // AVR MCU pins have a defined level.  We do this by configuring unused pins
@@ -208,7 +207,7 @@ int main (void)
     adc_init();
 
 	// TEST CODE
-	//pwm_dir_a(128);
+//	pwm_dir_a(20);
 	//while(1);
 	
 #if ESTIMATOR_ENABLED
@@ -223,7 +222,7 @@ int main (void)
 
 #if PID_MOTION_ENABLED
     // Initialize the PID algorithm module.
-    pid_init();
+ //   pid_init(); <<---------------------------------------------------
 #endif
 
 #if IPD_MOTION_ENABLED
