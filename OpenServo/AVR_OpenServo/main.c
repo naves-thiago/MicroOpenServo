@@ -42,6 +42,7 @@
 #include "seek.h"
 #include "pulsectl.h"
 #include "timer.h"
+#include "usiTwiSlave.h"
 #include "twi.h"
 #include "watchdog.h"
 #include "registers.h"
@@ -77,7 +78,7 @@ static void handle_twi_command(void)
     uint8_t command;
 
     // Get the command from the receive buffer.
-    command = twi_receive_byte();
+    command = usiTwiReceiveByte();
 
     switch (command)
     {
@@ -244,7 +245,7 @@ int main (void)
 
     // Initialize the TWI slave module.
     //twi_slave_init(registers_read_byte(REG_TWI_ADDRESS));
-	twi_slave_init(0x10);
+    usiTwiSlaveInit(0x10);
 	
     // Finally initialize the timer.
     timer_set(0);
@@ -340,7 +341,7 @@ int main (void)
 		*/
 		
         // Was a command recieved?
-        if (twi_data_in_receive_buffer())
+        if (usiTwiDataInReceiveBuffer())
         {
             // Handle any TWI command.
             handle_twi_command();

@@ -26,7 +26,7 @@ LDFLAGS += -nostartfiles -v  -Wl,-Map=ATTiny44A_OpenServo.map
 
 
 ## Objects that must be built in order to link
-OBJECTS = bootcrt.o main.o adc.o registers.o eeprom.o watchdog.o motion.o math.o ipd.o pid.o regulator.o power.o twi.o pwm.o estimator.o timer.o 
+OBJECTS = bootcrt.o main.o adc.o registers.o eeprom.o watchdog.o motion.o math.o ipd.o pid.o regulator.o power.o pwm.o estimator.o timer.o usiTwiSlave.o 
 
 ## Objects explicitly added by the user
 LINKONLYOBJECTS =
@@ -82,7 +82,7 @@ power.o: power.c
 pulsectl.o: pulsectl.c
 	$(CC) $(INCLUDES) $(CFLAGS) -c $<
 
-twi.o: twi.c
+twi.o: iusiTwiSlave.c
 	$(CC) $(INCLUDES) $(CFLAGS) -c  $<
 
 pwm.o: pwm.c
